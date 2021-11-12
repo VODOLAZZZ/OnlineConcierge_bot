@@ -28,10 +28,6 @@ async def start(message: types.Message):
     await message.answer(f'Ваш айди:{message.from_user.id}')
 
 
-# @dp.message_handler(commands='set_room')
-# async def start(message: types.Message):
-#     room[message.from_user.id] = message.get_args()
-
 
 @dp.message_handler(commands='start')
 async def start(message: types.Message):
