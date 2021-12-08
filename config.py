@@ -120,9 +120,14 @@ ordering_food_form_an_order_message = 'Ваш заказ {0}, будет дос�
 ordering_food_form_an_order_inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     ordering_food_inline_buttons[-1])
 
-room_cleaning_message = 'Уборка'
-room_cleaning_buttons = ['Назад']
-room_cleaning_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(*room_cleaning_buttons)
+room_cleaning_message = 'Введите свой номер'
+room_cleaning_buttons = [InlineKeyboardButton('Отмена', callback_data=ordering_food_callback_data.new(
+                                                                             button_name='back_to_category_menu'))]
+room_cleaning_keyboard = InlineKeyboardMarkup(resize_keyboard=True).add(*room_cleaning_buttons)
+
+room_cleaning_message_form = 'К вам в номер {0}, придет уборщик в течении часа'
+room_cleaning_buttons_form = ['Назад']
+room_cleaning_keyboard_form = ReplyKeyboardMarkup(resize_keyboard=True).add(*room_cleaning_buttons_form)
 
 news_message = 'новости'
 news_buttons = ['Назад']
