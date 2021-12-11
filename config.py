@@ -20,7 +20,7 @@ start_message = 'Привет, {0}, чем я могу вам помочь? Ес
                 'Если хотите прочитать новости про отель, нажмите "Новости".'
 
 main_menu_message = start_message
-main_menu_buttons = ['Заказ еды', 'Уборка номера', 'Новости']
+main_menu_buttons = ['Заказ еды', 'Уборка номера']
 main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2).add(*main_menu_buttons)
 
 ordering_food_message = 'Выберете и нажмите на одну из кнопок снизу.'
