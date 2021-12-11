@@ -4,21 +4,12 @@ from aiogram.dispatcher import Dispatcher, FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.utils import executor
 from typing import Union
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 bot = Bot(token=cg.TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 cart = {}
 orders = []
-
-
-class OrderFood(StatesGroup):
-    waiting_for_room_name = State()
-
-
-class RoomCleaning(StatesGroup):
-    waiting_for_room_name = State()
 
 
 async def edit_ordering_food_inline_keyboard(card: list):
@@ -86,13 +77,13 @@ async def ordering_food_form_an_order_enter_room(call: types.CallbackQuery):
     cart[call.from_user.id] = cart.get(call.from_user.id, [])
     if cart[call.from_user.id]:
         await call.message.edit_text('Введите номер в который принесут заказ')
-        await OrderFood.waiting_for_room_name.set()
+        await cg.OrderFood.waiting_for_room_name.set()
         await call.answer()
     else:
         await call.answer('Вы ничего не добавили в корзину', show_alert=True)
 
 
-@dp.message_handler(state=OrderFood.waiting_for_room_name)
+@dp.message_handler(state=cg.OrderFood.waiting_for_room_name)
 async def ordering_food_enter_room_name(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer('Вы неправильно указали номер, пожалуйста введите только цифры')
@@ -119,11 +110,11 @@ async def room_cleaning(message: types.Message):
 @dp.callback_query_handler(cg.room_cleaning_callback_data.filter(button_name='order'))
 async def room_cleaning_accept(call: types.CallbackQuery):
     await call.message.edit_text('Введите номер в котором надо убраться')
-    await RoomCleaning.waiting_for_room_name.set()
+    await cg.RoomCleaning.waiting_for_room_name.set()
     await call.answer()
 
 
-@dp.message_handler(state=RoomCleaning.waiting_for_room_name)
+@dp.message_handler(state=cg.RoomCleaning.waiting_for_room_name)
 async def room_cleaning_enter_the_room_name(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer('Вы неправильно указали номер, пожалуйста введите только цифры')

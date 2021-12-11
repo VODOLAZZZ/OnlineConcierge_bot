@@ -2,8 +2,18 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.callback_data import CallbackData
+from aiogram.dispatcher.filters.state import State, StatesGroup
 
 TOKEN = '2096892030:AAGczC-gxnMIFbKFymQIvOr2x9R2QqywrZ0'
+
+
+class OrderFood(StatesGroup):
+    waiting_for_room_name = State()
+
+
+class RoomCleaning(StatesGroup):
+    waiting_for_room_name = State()
+
 
 start_message = 'Привет, {0}, чем я могу вам помочь? Если вы хотите заказать еду, нажмите кнопку "Заказ еды". ' \
                 'Если хотите, чтобы убрали в комнате, нажмите "Уборка комнаты". ' \
