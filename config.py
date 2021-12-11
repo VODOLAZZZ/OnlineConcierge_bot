@@ -87,7 +87,6 @@ ordering_food_inline_buttons_c3 = [
 ordering_food_inline_keyboard_c3 = InlineKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     *ordering_food_inline_buttons_c3).add(ordering_food_inline_button_back_to_category_menu)
 
-
 ordering_food_inline_keyboard_c_text = '''ХОЛОДНЫЕ ЗАКУСКИ
 Яйцо вареное 1/070 12-00
 Творог со сметаной 1/100 50-00
@@ -120,15 +119,11 @@ ordering_food_form_an_order_message = 'Ваш заказ {0}, будет дос�
 ordering_food_form_an_order_inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     ordering_food_inline_buttons[-1])
 
-room_cleaning_message = 'Введите свой номер'
-room_cleaning_buttons = [InlineKeyboardButton('Отмена', callback_data=ordering_food_callback_data.new(
-                                                                             button_name='back_to_category_menu'))]
-room_cleaning_keyboard = InlineKeyboardMarkup(resize_keyboard=True).add(*room_cleaning_buttons)
-
+room_cleaning_callback_data = CallbackData('room_cleaning', 'button_name')
+room_cleaning_message = 'Уборка номера'
+room_cleaning_inline_message = 'Нажмите на кнопку "Заказать" чтобы заказать уборку'
+room_cleaning_inline_buttons = [
+    InlineKeyboardButton('Заказать', callback_data=room_cleaning_callback_data.new(button_name='order'))]
+room_cleaning_inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True).add(*room_cleaning_inline_buttons).add(
+    ordering_food_inline_buttons[-1])
 room_cleaning_message_form = 'К вам в номер {0}, придет уборщик в течении часа'
-room_cleaning_buttons_form = ['Назад']
-room_cleaning_keyboard_form = ReplyKeyboardMarkup(resize_keyboard=True).add(*room_cleaning_buttons_form)
-
-news_message = 'новости'
-news_buttons = ['Назад']
-news_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(*news_buttons)

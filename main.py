@@ -19,7 +19,6 @@ class OrderFood(StatesGroup):
 
 class RoomCleaning(StatesGroup):
     waiting_for_room_name = State()
-    in_main_menu = State()
 
 
 async def edit_ordering_food_inline_keyboard(card: list):
@@ -28,21 +27,20 @@ async def edit_ordering_food_inline_keyboard(card: list):
 
 
 @dp.message_handler(commands='id')
-async def start(message: types.Message):
+async def start(message: types.Message, state: FSMContext):
     print(message.from_user.id)
     await message.answer(f'Ваш айди:{message.from_user.id}')
 
 
-@dp.message_handler(commands='start')
-async def start(message: types.Message):
+@dp.message_handler(commands='start', state='*')
+async def start(message: types.Message, state: FSMContext):
+    await state.finish()
     await message.answer(cg.start_message.format(message.chat.first_name), reply_markup=cg.main_menu_keyboard)
 
 
-@dp.message_handler(Text(equals=[cg.room_cleaning_buttons[-1], cg.news_buttons[-1]]))
-@dp.callback_query_handler(Text(endswith='back_to_main_menu'), state=RoomCleaning.in_main_menu)
-async def main_menu(cam: Union[types.CallbackQuery, types.Message], state: FSMContext):
+@dp.callback_query_handler(cg.ordering_food_callback_data.filter(button_name='back_to_main_menu'))
+async def main_menu(cam: Union[types.CallbackQuery, types.Message]):
     if type(cam) == types.CallbackQuery:
-        await state.finish()
         await cam.message.edit_reply_markup()
         await cam.message.answer(cg.main_menu_message.format(cam.from_user.first_name),
                                  reply_markup=cg.main_menu_keyboard)
@@ -106,38 +104,38 @@ async def ordering_food_enter_room_name(message: types.Message, state: FSMContex
         number = len(orders) + 1
         orders.append({room: cart[user_id]})
         await bot.send_message(476343978,
-                               f'Ты типо повар, к тебе тут заказ прилетел: номер {number} в номер {room} ({", ".join(orders[-1][room])})')
+                               f'Ты типо повар, к тебе тут заказ прилетел: №{number} в номер {room} ({", ".join(orders[-1][room])})')
         await message.answer(cg.ordering_food_form_an_order_message.format(number, room),
                              reply_markup=cg.ordering_food_form_an_order_inline_keyboard)
-        await RoomCleaning.in_main_menu.set()
         cart[user_id] = []
 
 
 @dp.message_handler(Text(equals=cg.main_menu_buttons[1]))
 async def room_cleaning(message: types.Message):
-    await message.answer(cg.room_cleaning_message)
-    await message.answer('Введите номер', reply_markup=cg.room_cleaning_keyboard)
+    await message.answer(cg.room_cleaning_message, reply_markup=cg.ReplyKeyboardRemove())
+    await message.answer(cg.room_cleaning_inline_message, reply_markup=cg.room_cleaning_inline_keyboard)
+
+
+@dp.callback_query_handler(cg.room_cleaning_callback_data.filter(button_name='order'))
+async def room_cleaning_accept(call: types.CallbackQuery):
+    await call.message.edit_text('Введите номер в котором надо убраться')
     await RoomCleaning.waiting_for_room_name.set()
+    await call.answer()
 
 
-@dp.callback_query_handler(state=RoomCleaning.waiting_for_room_name)
 @dp.message_handler(state=RoomCleaning.waiting_for_room_name)
-async def room_cleaning_enter_room_name(cam: types.Message, state: FSMContext):
-    if not cam.text.isdigit():
-        await cam.answer('Вы неправильно указали номер, пожалуйста введите только цифры')
+async def room_cleaning_enter_the_room_name(message: types.Message, state: FSMContext):
+    if not message.text.isdigit():
+        await message.answer('Вы неправильно указали номер, пожалуйста введите только цифры')
     else:
         await state.finish()
-        room = cam.text
+        room = message.text
         number = len(orders) + 1
-        orders.append({room: ['clean']})
+        orders.append({room: 'clean'})
         await bot.send_message(476343978,
-                               f'Ты типо уборщик, к тебе тут заказ прилетел: номер {number} в номер {room}')
-        await cam.answer(cg.room_cleaning_message_form.format(room), reply_markup=cg.room_cleaning_keyboard_form)
-
-
-@dp.message_handler(Text(equals=cg.main_menu_buttons[2]))
-async def news(message: types.Message):
-    await message.answer(cg.news_message, reply_markup=cg.news_keyboard)
+                               f'Ты типо уборщик, к тебе тут заказ прилетел: №{number} в номер {room}')
+        await message.answer(cg.room_cleaning_message_form.format(room),
+                             reply_markup=cg.ordering_food_form_an_order_inline_keyboard)
 
 
 async def shutdown(dispatcher: Dispatcher):
