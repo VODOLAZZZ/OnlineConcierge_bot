@@ -94,7 +94,7 @@ async def ordering_food_enter_room_name(message: types.Message, state: FSMContex
         cart[user_id] = cart.get(user_id, [])
         number = len(orders) + 1
         orders.append({room: cart[user_id]})
-        await bot.send_message(476343978,
+        await bot.send_message(367134589,
                                f'Ты типо повар, к тебе тут заказ прилетел: №{number} в номер {room} ({", ".join(orders[-1][room])})')
         await message.answer(cg.ordering_food_form_an_order_message.format(number, room),
                              reply_markup=cg.ordering_food_form_an_order_inline_keyboard)
