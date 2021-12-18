@@ -12,11 +12,6 @@ cart = {}
 orders = []
 
 
-async def edit_ordering_food_inline_keyboard(card: list):
-    buttons_list = cg.ordering_food_inline_keyboard_c_text_list
-    finale_list = []
-
-
 @dp.message_handler(commands='id')
 async def start(message: types.Message, state: FSMContext):
     print(message.from_user.id)
@@ -35,6 +30,7 @@ async def main_menu(cam: Union[types.CallbackQuery, types.Message]):
         await cam.message.edit_reply_markup()
         await cam.message.answer(cg.main_menu_message.format(cam.from_user.first_name),
                                  reply_markup=cg.main_menu_keyboard)
+        cart[cam.from_user.id] = []
     elif type(cam) == types.Message:
         await cam.answer(cg.start_message.format(cam.chat.first_name), reply_markup=cg.main_menu_keyboard)
 
@@ -46,29 +42,60 @@ async def ordering_food(cam: Union[types.CallbackQuery, types.Message]):
         await cam.answer('Что будете заказывать?', reply_markup=cg.ReplyKeyboardRemove())
         await cam.answer(cg.ordering_food_message, reply_markup=cg.ordering_food_inline_keyboard)
     elif type(cam) == types.CallbackQuery:
-        await cam.message.edit_text(cg.ordering_food_message, reply_markup=cg.ordering_food_inline_keyboard)
+        cart[cam.from_user.id] = cart.get(cam.from_user.id, [])
+        if cart[cam.from_user.id] != []:
+            card_text = '\nКорзина:\n' + '\n'.join(cart[cam.from_user.id])
+        else:
+            card_text = ''
+        await cam.message.edit_text(f'{cg.ordering_food_message}{card_text}', reply_markup=cg.ordering_food_inline_keyboard)
         await cam.answer()
 
 
 @dp.callback_query_handler(cg.ordering_food_callback_data.filter(button_name=['0', '1', '2', '3']))
 async def ordering_food_category(call: types.CallbackQuery, callback_data: dict):
     category = callback_data['button_name']
+    cart[call.from_user.id] = cart.get(call.from_user.id, [])
+    if cart[call.from_user.id] != []:
+        card_text = '\nКорзина:\n' + '\n'.join(cart[call.from_user.id])
+    else:
+        card_text = ''
     if category == '0':
-        await call.message.edit_text(cg.ordering_food_message_c0, reply_markup=cg.ordering_food_inline_keyboard_c0)
+        await call.message.edit_text(f'{cg.ordering_food_message_c0}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c0)
     elif category == '1':
-        await call.message.edit_text(cg.ordering_food_message_c1, reply_markup=cg.ordering_food_inline_keyboard_c1)
+        await call.message.edit_text(f'{cg.ordering_food_message_c1}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c1)
     elif category == '2':
-        await call.message.edit_text(cg.ordering_food_message_c2, reply_markup=cg.ordering_food_inline_keyboard_c2)
+        await call.message.edit_text(f'{cg.ordering_food_message_c2}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c2)
     elif category == '3':
-        await call.message.edit_text(cg.ordering_food_message_c3, reply_markup=cg.ordering_food_inline_keyboard_c3)
+        await call.message.edit_text(f'{cg.ordering_food_message_c3}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c3)
     await call.answer()
 
 
 @dp.callback_query_handler(cg.ordering_food_category_callback_data.filter())
 async def ordering_food_add_food(call: types.CallbackQuery, callback_data: dict):
-    food_id = callback_data['category'] + callback_data['id']
+    category = callback_data['category']
+    food_id = callback_data['food_name']
     cart[call.from_user.id] = cart.get(call.from_user.id, [])
     cart[call.from_user.id] += [food_id]
+    if cart[call.from_user.id] != []:
+        card_text = '\nКорзина:\n' + '\n'.join(cart[call.from_user.id])
+    else:
+        card_text = ''
+    if category == '0':
+        await call.message.edit_text(f'{cg.ordering_food_message_c0}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c0)
+    elif category == '1':
+        await call.message.edit_text(f'{cg.ordering_food_message_c1}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c1)
+    elif category == '2':
+        await call.message.edit_text(f'{cg.ordering_food_message_c2}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c2)
+    elif category == '3':
+        await call.message.edit_text(f'{cg.ordering_food_message_c3}{card_text}',
+                                     reply_markup=cg.ordering_food_inline_keyboard_c3)
     await call.answer()
 
 
